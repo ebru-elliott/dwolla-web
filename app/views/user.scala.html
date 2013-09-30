@@ -1,0 +1,36 @@
+@(userForm: Form[User])
+
+@import helper._
+
+
+@main(title = "The 'Biofuel Oasis' application") {
+
+
+<h1>Configure your Biofuel Oasis Account:</h1>
+
+@form(action = routes.Application.saveUser, args = 'id -> "userform") {
+
+@inputText(
+field = userForm("username"),
+args = '_label -> "Username"
+)
+
+@inputPassword(
+field = userForm("password"),
+args = '_label -> "Password"
+)
+
+@inputText(
+field = userForm("pin"),
+args = '_label -> "Dwolla PIN", 'size -> 4
+)
+
+
+
+<p class="buttons">
+    <input type="submit">
+<p>
+
+    }
+
+    }

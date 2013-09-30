@@ -1,0 +1,32 @@
+@(names: List[String], chargeForm:Form[Application.ChargeForm])
+
+@import helper._
+
+
+@main(title = "Biofuel Oasis") {
+
+<h1>Charge your Biofuel Oasis Account:</h1>
+
+@form(action = routes.Application.chargeUser, args = 'id -> "chargeform") {
+
+
+@select(
+chargeForm("username"),
+options = options(names),
+'_label -> "Names"
+)
+
+
+@inputText(
+field = chargeForm("amount"),
+args = '_label -> "Amount", 'size -> 10
+)
+
+
+<p class="buttons">
+    <input type="submit">
+<p>
+
+    }
+
+    }
