@@ -1,7 +1,9 @@
-@(message: String)
+@(key: String, redirect_uri: String)
 
-@main("Welcome to Play 2.1") {
-    
-    @play20.welcome(message, style = "Java")
-    
+@import helper._
+
+@main(title = "Biofuel Oasis using Dwolla") {
+
+<a class="name" href="https://www.dwolla.com/oauth/v2/authenticate?scope=send&client_id=@key&response_type=code&redirect_uri=@redirect_uri">authorize</a>
+
 }
