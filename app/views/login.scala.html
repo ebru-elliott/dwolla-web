@@ -1,0 +1,33 @@
+@(loginForm: Form[Authentication.LoginForm])
+
+@import helper._
+@import helper.twitterBootstrap._
+
+@main("Please sign in to Biofuel Oasis application") {
+
+@form(routes.Authentication.authenticate) {
+<h1>Login or Registration</h1>
+
+@if(loginForm.hasGlobalErrors) {
+<p class="error">
+    @loginForm.globalError.message
+</p>
+}
+
+@if(flash.contains("success")) {
+<p class="success">
+    @flash.get("success")
+</p>
+}
+<p>
+    <input type="username" name="username" placeholder="username" value="@loginForm("username").value">
+</p>
+<p>
+    <input type="password" name="password" placeholder="password">
+</p>
+<p>
+    <button type="submit">Login</button>
+    <a class="name" href="/prep">Register</a>
+</p>
+}
+}

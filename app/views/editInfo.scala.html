@@ -4,18 +4,13 @@
 
 @main(title = "The 'Biofuel Oasis' application") {
 
-<h1>Configure your Biofuel Oasis Account:</h1>
+<h1>Edit Information</h1>
 
-@form(action = routes.Application.saveUser, args = 'id -> "userform") {
+@form(action = routes.Application.updateInfo, args = 'id -> "userform") {
 
 @inputText(
 field = userForm("username"),
 args = '_label -> "Username"
-)
-
-@inputPassword(
-field = userForm("password"),
-args = '_label -> "Password"
 )
 
 @inputPassword(
@@ -24,8 +19,10 @@ args = '_label -> "Dwolla PIN", 'size -> 4
 )
 
 <p class="buttons">
-    <input type="submit">
+  <input type="submit">
 <p>
+
+<a class="name" href="@routes.Application.usermenu"> Cancel TODO</a>
 
     }
 

@@ -11,7 +11,8 @@ object ApplicationBuild extends Build {
       javaCore,
       javaJdbc,
       javaEbean,
-      "com.squareup.retrofit" % "retrofit" %   "1.2.2"
+      "com.squareup.retrofit" % "retrofit" %   "1.2.2" ,
+      "org.mindrot" % "jbcrypt" % "0.3m"
     )
 
     val main = play.Project(appName, appVersion, appDependencies).settings(
