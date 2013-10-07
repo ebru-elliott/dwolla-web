@@ -6,7 +6,7 @@
 @main("Please sign in to Biofuel Oasis application") {
 
 @form(routes.Authentication.authenticate) {
-<h1>Login or Registration</h1>
+<h1>Login or Register</h1>
 
 @if(loginForm.hasGlobalErrors) {
 <p class="error">
@@ -14,20 +14,29 @@
 </p>
 }
 
+
 @if(flash.contains("success")) {
 <p class="success">
     @flash.get("success")
 </p>
 }
+
+@inputText(
+field = loginForm("username"),
+args = '_label -> "Username"
+)
+
+@inputPassword(
+field = loginForm("password"),
+args = '_label -> "Password"
+)
+
+<p class="buttons">
+    <input type="submit">
 <p>
-    <input type="username" name="username" placeholder="username" value="@loginForm("username").value">
-</p>
+
 <p>
-    <input type="password" name="password" placeholder="password">
-</p>
-<p>
-    <button type="submit">Login</button>
-    <a class="name" href="/prep">Register</a>
+    <a class="name" href="@routes.Application.index">Register</a>
 </p>
 }
 }

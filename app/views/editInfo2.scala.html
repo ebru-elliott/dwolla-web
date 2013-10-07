@@ -1,4 +1,4 @@
-@(infoForm: Form[Application.Info])
+@(id: Integer, infoForm: Form[Admin.Info])
 
 @import helper._
 
@@ -6,7 +6,12 @@
 
 <h1>Edit Information</h1>
 
-@form(action = routes.Application.updateInfo) {
+@form(routes.Admin.deleteUser(id), 'class -> "topRight") {
+<input type="submit" value="Delete this user" class="btn danger">
+}
+
+
+@form(action = routes.Admin.updateInfo(id)) {
 
 @if(infoForm.hasGlobalErrors) {
 <p class="error">
@@ -26,15 +31,12 @@ field = infoForm("username"),
 args = '_label -> "Username"
 )
 
-@inputPassword(
-field = infoForm("pin"),
-args = '_label -> "Dwolla PIN"
-)
+@checkbox(field = infoForm("isAdmin"))
 
 <p class="buttons"><input type="submit"></p>
 
-<a class="name" href="@routes.Application.usermenu"> Cancel TODO</a>
+<a class="name" href="@routes.Admin.menu"> Cancel TODO</a>
 
-    }
+}
 
-    }
+}

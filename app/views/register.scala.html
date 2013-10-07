@@ -1,0 +1,39 @@
+@(registrationForm: Form[Application.Registration])
+
+@import helper._
+
+@main(title = "The 'Biofuel Oasis' application") {
+
+<h1>Configure your Biofuel Oasis Account:</h1>
+
+@form(action = routes.Application.saveUser, args = 'id -> "registrationform") {
+
+@inputText(
+field = registrationForm("username"),
+args = '_label -> "Username"
+)
+
+@inputPassword(
+field = registrationForm("password"),
+args = '_label -> "Password"
+)
+
+@inputPassword(
+field = registrationForm("confirmPassword"),
+args = '_label -> "Confirm Password"
+)
+
+@inputPassword(
+field = registrationForm("pin"),
+args = '_label -> "Dwolla PIN", 'size -> 4
+)
+
+<p class="buttons">
+    <input type="submit">
+<p>
+
+<a class="name" href="@routes.Application.usermenu"> Cancel TODO</a>
+
+    }
+
+    }

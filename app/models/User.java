@@ -16,6 +16,8 @@ public class User extends Model {
 
 
     @Id
+    public Integer id;
+
     @Constraints.Required
     public String username;
 
@@ -23,28 +25,34 @@ public class User extends Model {
     public String pin;
 
     @Constraints.Required
-    public String password;
+    @Column(name = "password")
+    public String passwordHash;
+
+    public boolean isAdmin = false;
 
     public String token;
 
 
-    public static Finder<String, User> finder = new Finder<String, User>(String.class, User.class);
+    public static Finder<Integer, User> finder = new Finder<Integer, User>(Integer.class, User.class);
 
     public User() {
     }
 
-    public static List<String> listUsers() {
-        List<String> names = new ArrayList<String>();
+    public static List<User> all() {
+        return finder.all();
+    }
 
-        for (User user : finder.select("username").findList()) {   //todo ee: finder another way
-            names.add(user.username);
-        }
-        return names;
+    public static User byId(Integer id) {
+        return finder.byId(id);
+    }
+
+    public static void delete(Integer id) {
+        finder.ref(id).delete();
     }
 
 
     public static User findByUsername(String username) {
-        return finder.byId(username);
+        return finder.where().eq("username", username).findUnique();
     }
 
     @Override

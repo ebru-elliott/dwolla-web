@@ -14,7 +14,7 @@ import java.io.UnsupportedEncodingException;
 
 import static play.data.Form.form;
 
-public class Authentication extends Controller {
+public class Authentication extends BaseController {
 
     public static class LoginForm {
 
@@ -27,6 +27,7 @@ public class Authentication extends Controller {
     }
 
     public static Result login() {
+        session().clear();
         return ok(login.render(form(LoginForm.class)));
     }
 
@@ -38,30 +39,29 @@ public class Authentication extends Controller {
     }
 
     public static Result authenticate() {
-        // the validate method of the form has already been called
-        Form<LoginForm> loginForm = form(LoginForm.class).bindFromRequest();
 
-        if(loginForm.hasErrors()) {
-            return badRequest(login.render(loginForm));
+        Form<LoginForm> form = form(LoginForm.class).bindFromRequest();
+
+        if(form.hasErrors()) {
+            form.reject("form has errors: " + form.errorsAsJson());
+            return badRequest(login.render(form));
         } else {
 
-            String username = loginForm.get().username;
-            String password = loginForm.get().password;
-
-
-
-            User user = User.findByUsername(username);
+            User user = User.findByUsername(form.get().username);
             if (user == null) {
-                return badRequest("invalid username");
+                form.reject("invalid username");
+                return badRequest(login.render(form));
             }
-            if ( ! BCrypt.checkpw(password, user.password) ) {
-                return badRequest("invalid password");
+            if ( ! BCrypt.checkpw(form.get().password, user.passwordHash) ) {
+                form.reject("invalid password");
+                return badRequest(login.render(form));
             }
 
             session().clear();
-            session("username", username);
 
-            return ok(usermenu.render(null, null)); //encode(DWOLLA_APP_KEY), encode(DWOLLA_REDIRECT2_URI)));
+            populateSession(user);
+
+            return ok(usermenu.render());
         }
     }
 

@@ -26,28 +26,29 @@ import retrofit.Server;
 import retrofit.http.GET;
 import retrofit.http.Query;
 
+//todo ee: figure out the authorization on certain links, bootstrap admin values, isAdmin check on the usermenu
+//check cancel,clean up error messages, async vs. sync error handling, update redirect_uri to be localhost vs. the whole path
 
-//@Security.Authenticated(Secured.class)
-public class Application extends Controller {
+@Security.Authenticated(Secured.class)
+public class Application extends BaseController {
 
     private static final String TOKEN = "token";
     private static final String AUTHORIZATION_CODE = "authorization_code";
 
-    private static final String DWOLLA_API_BASEURL = "https://www.dwolla.com";
-    private static final String DWOLLA_DESTINATION_ID = System.getenv("DWOLLA_DESTINATION_ID");
-    private static final String DWOLLA_APP_KEY = System.getenv("DWOLLA_APP_KEY");
+    //todo ee:refactor constants to ?
+    public static final String DWOLLA_API_BASEURL = "https://www.dwolla.com";
+    public static final String DWOLLA_DESTINATION_ID = System.getenv("DWOLLA_DESTINATION_ID");
+    public static final String DWOLLA_APP_KEY = System.getenv("DWOLLA_APP_KEY");
     private static final String DWOLLA_APP_SECRET = System.getenv("DWOLLA_APP_SECRET");
     private static final String DWOLLA_REDIRECT_URI = System.getenv("DWOLLA_REDIRECT_URI");     //todo ee: why is this in environment var?
-    private static final String DWOLLA_REDIRECT2_URI = "http://localhost:9000/usermenu"; //todo ee? how about vars
-
-    private static final String CRYPTO_SECRET = System.getenv("APP_SECRET").substring(0,16);
 
 
-    public static class ChargeForm {
+    public static final String CRYPTO_SECRET = System.getenv("APP_SECRET").substring(0, 16);
+
+    public static class Info {
         @Required
         public String username;
-        @Required
-        public Double amount;
+        public String pin;
     }
 
     public static class PasswordForm {
@@ -57,15 +58,40 @@ public class Application extends Controller {
         public String newPassword;
         @Required
         public String confirmPassword;
+
+        public String validate() {
+            if (newPassword != null && !newPassword.equals(confirmPassword)) {
+                return "password and confirmPassword do not match";
+            }
+            return null;
+        }
+
     }
 
-    public static class UserForm
-    {
+    public static class Registration {
+        @Required
+        public String username;
+        @Required
+        public String password;
+        @Required
+        public String pin;
+        @Required
+        public String confirmPassword;
+
+        public String validate() {
+            if (password != null && !password.equals(confirmPassword)) {
+                return "password and confirmPassword do not match";
+            }
+            return null;
+        }
+    }
+
+
+    public static class UserForm {
         @Required
         public String username;
         @Required
         public String pin;
-
     }
 
 
@@ -90,16 +116,10 @@ public class Application extends Controller {
         return ok(index.render(encode(DWOLLA_APP_KEY), encode(DWOLLA_REDIRECT_URI)));
     }
 
-    public static String dwollaAppKey() throws UnsupportedEncodingException {
-        return encode(DWOLLA_APP_KEY);
-    }
-
-    public static String dwollaRedirectUri() throws UnsupportedEncodingException {
-        return encode(DWOLLA_REDIRECT_URI);
-    }
-
     public static Result oauthFlow(String code) {
-        Form<User> userForm = form(User.class);
+
+        System.out.println("oauthFlow");
+        Form<Registration> form = form(Registration.class);
 
         //Retrofit REST client, oauth step2
         RestAdapter restAdapter = new RestAdapter.Builder()
@@ -110,17 +130,27 @@ public class Application extends Controller {
         Token token = dwolla.getToken(DWOLLA_APP_KEY, DWOLLA_APP_SECRET, AUTHORIZATION_CODE, DWOLLA_REDIRECT_URI, code);
         session(TOKEN, token.access_token);
 
-        return ok(user.render(userForm));
+        //todo ee: session(TOKEN) a good idea?
+        if ( ! isAuthenticated() )
+            return ok(register.render(form));
+        else
+        {
+            User u = currentUser();
+            u.token = token.access_token;
+            u.update();
 
+            return ok(usermenu.render());
+        }
     }
 
     public static Result editInfo() {
 
-        User user = User.findByUsername(session("username"));
-        Form<User> form = form(User.class).fill(user);
+        Info info = new Info();
+        User user = currentUser();
+        info.username = user.username;
+        Form<Info> form = form(Info.class).fill(info);
 
         return ok(editInfo.render(form));
-
     }
 
     public static Result editPassword() {
@@ -129,116 +159,88 @@ public class Application extends Controller {
     }
 
     public static Result updateInfo() throws UnsupportedEncodingException {
-        Form<User> form = form(User.class).bindFromRequest();
-
-        User user = User.findByUsername(session("username"));
-        user.username =  form.get().username;
-        user.pin = Crypto.encryptAES(form.get().pin, CRYPTO_SECRET);
-        user.update();
-
-        return ok(usermenu.render(encode(DWOLLA_APP_KEY), encode(DWOLLA_REDIRECT2_URI)));
+        Form<Info> form = form(Info.class).bindFromRequest();
 
 
+        if (form.hasErrors()) {
+            form.reject("form has errors: " + form.errorsAsJson());
+            return badRequest(editInfo.render(form));
+        }
+
+        User u = currentUser();
+
+        u.username = form.get().username;
+        String pin = form.get().pin;
+
+        if (pin != null) {
+            u.pin = Crypto.encryptAES(pin, CRYPTO_SECRET);
+        }
+        u.update();
+
+        return ok(usermenu.render());
     }
 
 
-        public static Result updatePassword() throws UnsupportedEncodingException {
-        Form<PasswordForm> form = form(PasswordForm.class);
+    public static Result updatePassword() throws UnsupportedEncodingException {
+        Form<PasswordForm> form = form(PasswordForm.class).bindFromRequest();
 
-        String username = session("username");
-        User user = User.findByUsername(username);
-
-        if ((BCrypt.checkpw(form.get().oldPassword, user.password)) && ((form.get().newPassword).equals(form.get().confirmPassword)))
-        {
-            user.password = BCrypt.hashpw(form.get().newPassword, BCrypt.gensalt());
-            user.update();
-            return ok(usermenu.render(encode(DWOLLA_APP_KEY), encode(DWOLLA_REDIRECT2_URI)));
+        if (form.hasErrors()) {
+            return badRequest(editPassword.render(form));
         }
-        else
-        {
+
+        User u = User.findByUsername(session("username"));
+        if ((BCrypt.checkpw(form.get().oldPassword, u.passwordHash)) && ((form.get().newPassword).equals(form.get().confirmPassword))) {
+            u.passwordHash = BCrypt.hashpw(form.get().newPassword, BCrypt.gensalt());
+            u.update();
+            return ok(usermenu.render());
+        } else {
+            form.reject("password mismatch");
             return badRequest(editPassword.render(form));
 
         }
-
-
     }
 
     public static Result usermenu() throws UnsupportedEncodingException {
-        return ok(usermenu.render(encode(DWOLLA_APP_KEY), encode(DWOLLA_REDIRECT2_URI)));
+        return ok(usermenu.render());
     }
 
 
-    // encyrpt pin before saving, decrypt before using it , app key in system env
-    // bcyrpt with the password
-    // add isAdmin to the user table, populate it with admin
-    // admin can update : username, isAdmin
-    // user can update : 1) change username, pin, 2) change password, 3) reauthorize (pin, pwd not displayed)
-    //  admin menu: user (Edit | charge) listUsers page, chargeUser  (Remove user should be under Edit)
-
     public static Result saveUser() throws UnsupportedEncodingException {
-        Form<User> form = form(User.class).bindFromRequest();
+        Form<Registration> form = form(Registration.class).bindFromRequest();
 
         if (form.hasErrors()) {
             System.out.println("ERROR!" + form.errorsAsJson());
-            return badRequest(user.render(form));
+            return badRequest(register.render(form));
 
         } else {
-            User u = form.get();
+            User u = new User();
 
-            //todo ee: is this the right place to check it (vs. validation/client side)
-            User dbUser = User.findByUsername(u.username);
-            if (dbUser !=null)
-                return badRequest(user.render(form));  // todo ee: badRequest or?
+            User dbUser = User.findByUsername(form.get().username);
+            if (dbUser != null)
+                return badRequest(register.render(form));
 
-            u.pin = Crypto.encryptAES(u.pin, CRYPTO_SECRET);
-            u.password = BCrypt.hashpw(u.password, BCrypt.gensalt());
+            u.username = form.get().username;
+            u.pin = Crypto.encryptAES(form.get().pin, CRYPTO_SECRET);
+            u.passwordHash = BCrypt.hashpw(form.get().password, BCrypt.gensalt());
             u.token = session(TOKEN);
-
             u.save();
-            return ok(usermenu.render(encode(DWOLLA_APP_KEY), encode(DWOLLA_REDIRECT2_URI)));
+
+            session("username", form.get().username);
+            return ok(usermenu.render());
         }
     }
 
-    public static Result listUsers() {
-        Form<ChargeForm> chargeForm = form(ChargeForm.class);
 
-        List<String> names = User.listUsers();
-        return ok(users.render(names, chargeForm));
+    public static String dwollaAppKey() throws UnsupportedEncodingException {
+        return encode(DWOLLA_APP_KEY);
+    }
+
+    public static String dwollaRedirectUri() throws UnsupportedEncodingException {
+        return encode(DWOLLA_REDIRECT_URI);
     }
 
 
-    public static Result chargeUser() {
-        Form<ChargeForm> chargeForm = form(ChargeForm.class).bindFromRequest();
-        ChargeForm form = chargeForm.get();
-
-        String username = form.username;
-        Double amount = form.amount;
-
-        User user = User.finder.byId(username);
-
-
-        if (chargeForm.hasErrors()) {
-            System.out.println("ERROR!" + chargeForm.errorsAsJson());
-            return badRequest(users.render(User.listUsers(), chargeForm));  //todo ee: anyway to avoid hitting db again
-
-        } else {
-
-            //todo ee: async vs sync
-            DwollaServiceAsync service = new RestAdapter.Builder().setServer(
-                    new Server(DWOLLA_API_BASEURL + "/oauth/rest")).build().create(DwollaServiceAsync.class);
-
-            String pin = Crypto.decryptAES(user.pin, CRYPTO_SECRET);
-            System.out.println("decrypted pin: " + pin);
-            //todo ee: update this with error handling
-            service.send(new DwollaTypedBytes(new Gson(),
-                    new SendRequest(user.token, pin, DWOLLA_DESTINATION_ID, amount)), new SendCallback());
-            return ok("Thanks for payment!");
-
-        }
-
-    }
-
-    private static String encode(String value) throws UnsupportedEncodingException {
+    public static String encode(String value) throws UnsupportedEncodingException {
         return URLEncoder.encode(value, "UTF-8");
     }
 

@@ -4,11 +4,13 @@
 # --- !Ups
 
 create table USER_ACCOUNT (
-  username                  varchar(255) not null,
+  id                        integer not null,
+  username                  varchar(255),
   pin                       varchar(255),
   password                  varchar(255),
+  is_admin                  boolean,
   token                     varchar(255),
-  constraint pk_USER_ACCOUNT primary key (username))
+  constraint pk_USER_ACCOUNT primary key (id))
 ;
 
 create sequence USER_ACCOUNT_seq;

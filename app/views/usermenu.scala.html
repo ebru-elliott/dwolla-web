@@ -1,23 +1,21 @@
-@(key: String = null, redirect_uri: String = null)
 
 @import helper._
 @import controllers.Application
 
-
-
 @main(title = "The 'Biofuel Oasis' application") {
 
-<h1>Usermenu for @session.get("username")</h1>
+<h1>Menu for @session.get("username")</h1>
 
 <ul>
-<li>
-<a class="name" href="@routes.Application.editInfo">update username or dwolla pin</a>
-</li>
+<li><a class="name" href="@routes.Application.editInfo">update username or dwolla pin</a></li>
 <li><a class="name" href="@routes.Application.editPassword">update password</a></li>
-<li><a class="name" href="">TODO reauthorize</a></li>
 <li><a class="name" href="https://www.dwolla.com/oauth/v2/authenticate?scope=send&client_id=@Application.dwollaAppKey()&response_type=code&redirect_uri=@Application.dwollaRedirectUri()">reauthorize</a></li>
-</ul>
+<li><a class="name" href="@routes.Authentication.logout">logout</a></li>
 
+
+<li><a class="name" href="@routes.Admin.menu">admin</a></li>
+
+</ul>
 
 
 }
