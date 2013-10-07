@@ -61,7 +61,7 @@ public class Authentication extends BaseController {
 
             populateSession(user);
 
-            return ok(usermenu.render());
+            return redirect(controllers.routes.Application.usermenu());
         }
     }
 

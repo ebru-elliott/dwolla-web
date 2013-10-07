@@ -35,14 +35,6 @@ public class Application extends BaseController {
     private static final String TOKEN = "token";
     private static final String AUTHORIZATION_CODE = "authorization_code";
 
-    //todo ee:refactor constants to ?
-    public static final String DWOLLA_API_BASEURL = "https://www.dwolla.com";
-    public static final String DWOLLA_DESTINATION_ID = System.getenv("DWOLLA_DESTINATION_ID");
-    public static final String DWOLLA_APP_KEY = System.getenv("DWOLLA_APP_KEY");
-    private static final String DWOLLA_APP_SECRET = System.getenv("DWOLLA_APP_SECRET");
-    private static final String DWOLLA_REDIRECT_URI = System.getenv("DWOLLA_REDIRECT_URI");     //todo ee: why is this in environment var?
-
-
     public static final String CRYPTO_SECRET = System.getenv("APP_SECRET").substring(0, 16);
 
     public static class Info {
@@ -111,6 +103,7 @@ public class Application extends BaseController {
 
     /**
      * Home page
+     * todo: rename this
      */
     public static Result index() throws UnsupportedEncodingException {
         return ok(index.render(encode(DWOLLA_APP_KEY), encode(DWOLLA_REDIRECT_URI)));
@@ -130,7 +123,6 @@ public class Application extends BaseController {
         Token token = dwolla.getToken(DWOLLA_APP_KEY, DWOLLA_APP_SECRET, AUTHORIZATION_CODE, DWOLLA_REDIRECT_URI, code);
         session(TOKEN, token.access_token);
 
-        //todo ee: session(TOKEN) a good idea?
         if ( ! isAuthenticated() )
             return ok(register.render(form));
         else
@@ -139,7 +131,7 @@ public class Application extends BaseController {
             u.token = token.access_token;
             u.update();
 
-            return ok(usermenu.render());
+            return redirect(controllers.routes.Application.usermenu());
         }
     }
 
@@ -177,7 +169,7 @@ public class Application extends BaseController {
         }
         u.update();
 
-        return ok(usermenu.render());
+        return redirect(controllers.routes.Application.usermenu());
     }
 
 
@@ -188,11 +180,11 @@ public class Application extends BaseController {
             return badRequest(editPassword.render(form));
         }
 
-        User u = User.findByUsername(session("username"));
+        User u = currentUser();
         if ((BCrypt.checkpw(form.get().oldPassword, u.passwordHash)) && ((form.get().newPassword).equals(form.get().confirmPassword))) {
             u.passwordHash = BCrypt.hashpw(form.get().newPassword, BCrypt.gensalt());
             u.update();
-            return ok(usermenu.render());
+            return redirect(controllers.routes.Application.usermenu());
         } else {
             form.reject("password mismatch");
             return badRequest(editPassword.render(form));
@@ -201,7 +193,7 @@ public class Application extends BaseController {
     }
 
     public static Result usermenu() throws UnsupportedEncodingException {
-        return ok(usermenu.render());
+        return ok(usermenu.render( currentUser() ));
     }
 
 
@@ -225,8 +217,9 @@ public class Application extends BaseController {
             u.token = session(TOKEN);
             u.save();
 
-            session("username", form.get().username);
-            return ok(usermenu.render());
+            System.out.println("User id: " + u.id);
+            populateSession(u);
+            return redirect(controllers.routes.Application.usermenu());
         }
     }
 
