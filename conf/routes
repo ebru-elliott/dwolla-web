@@ -17,7 +17,7 @@ POST    /editInfo                   controllers.Application.updateInfo()
 POST    /editPassword               controllers.Application.updatePassword()
 GET     /menu                       controllers.Application.menu()
 GET     /authorize                  controllers.Application.authorize()
-GET     /oauth                      controllers.Application.oauthFlow(code:String = null)
+GET     /oauth                      controllers.Application.oauthFlow(code:String ?= null)
 
 
 # Admin

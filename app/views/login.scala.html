@@ -3,20 +3,15 @@
 @import helper._
 @import helper.twitterBootstrap._
 
-@main("Please sign in to Biofuel Oasis application") {
+@main("Please sign in to Biofuel Oasis with Dwolla Application") {
+<h1>Login or Register</h1>
+@flashMsg()
 
 @form(routes.Authentication.authenticate) {
-<h1>Login or Register</h1>
 
 @if(loginForm.hasGlobalErrors) {
 <p class="error">
     @loginForm.globalError.message
-</p>
-}
-
-@if(flash.contains("success")) {
-<p class="success">
-    @flash.get("success")
 </p>
 }
 

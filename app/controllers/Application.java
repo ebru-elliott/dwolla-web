@@ -1,10 +1,5 @@
 package controllers;
 
-import com.dwolla.java.sdk.DwollaServiceAsync;
-import com.dwolla.java.sdk.DwollaTypedBytes;
-import com.dwolla.java.sdk.requests.SendRequest;
-
-import com.google.gson.Gson;
 import models.User;
 import org.mindrot.jbcrypt.BCrypt;
 import play.libs.Crypto;
@@ -15,21 +10,17 @@ import static play.data.Form.*;
 
 import play.data.validation.Constraints.*;
 
-import java.io.UnsupportedEncodingException;
-import java.net.URLEncoder;
-import java.util.*;
 
 import views.html.*;
 
 import retrofit.RestAdapter;
-import retrofit.Server;
 import retrofit.http.GET;
 import retrofit.http.Query;
 
-//todo ee: clean up error messages, async vs. sync error handling,
+//todo ee: clean up error messages
 
 @Security.Authenticated(Secured.class)
-public class  Application extends BaseController {
+public class Application extends BaseController {
 
     private static final String AUTHORIZATION_CODE = "authorization_code";
 
@@ -75,14 +66,16 @@ public class  Application extends BaseController {
             return redirect(routes.Application.menu());
     }
 
-    public static Result authorize() throws UnsupportedEncodingException {
+    public static Result authorize() {
         return ok(authorize.render(encode(DWOLLA_APP_KEY), encode(DWOLLA_REDIRECT_URI)));
     }
 
     public static Result oauthFlow(String code) {
 
-        if (code == null)
+        if (code == null) {
+            flash(ERROR, "unsuccessful authentication");
             return goMenu();
+        }
 
         //Retrofit REST client, oauth step2
         RestAdapter restAdapter = new RestAdapter.Builder()
@@ -91,11 +84,15 @@ public class  Application extends BaseController {
 
         Dwolla dwolla = restAdapter.create(Dwolla.class);
         Token token = dwolla.getToken(DWOLLA_APP_KEY, DWOLLA_APP_SECRET, AUTHORIZATION_CODE, DWOLLA_REDIRECT_URI, code);
-        flash("success", "You've been successfully authenticated with Dwolla");
-
-        User u = currentUser();
-        u.token = token.access_token;
-        u.update();
+        if (token.access_token != null)
+        {
+            flash(SUCCESS, "successful authentication");
+            User u = currentUser();
+            u.token = token.access_token;
+            u.update();
+        }
+        else
+            flash(ERROR, token.error_description);
 
         return redirect(routes.Application.menu());
     }
@@ -116,9 +113,8 @@ public class  Application extends BaseController {
         return ok(editPassword.render(form));
     }
 
-    public static Result updateInfo() throws UnsupportedEncodingException {
+    public static Result updateInfo() {
         Form<Info> form = form(Info.class).bindFromRequest();
-
 
         if (form.hasErrors()) {
             form.reject("form has errors: " + form.errorsAsJson());
@@ -135,6 +131,7 @@ public class  Application extends BaseController {
         }
         u.update();
 
+        flash(SUCCESS, "update successful");
         return redirect(routes.Application.menu());
     }
 
@@ -142,7 +139,7 @@ public class  Application extends BaseController {
         return goMenu();
     }
 
-    public static Result updatePassword() throws UnsupportedEncodingException {
+    public static Result updatePassword() {
         Form<PasswordForm> form = form(PasswordForm.class).bindFromRequest();
 
         if (form.hasErrors()) {

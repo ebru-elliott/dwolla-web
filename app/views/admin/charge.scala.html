@@ -2,9 +2,10 @@
 
 @import helper._
 
-@main(title = "Biofuel Oasis") {
+@main(title = "Biofuel Oasis via Dwolla") {
 
-<h1>Charge the Biofuel Oasis Account:</h1>
+<h1>Charge the Biofuel Oasis Account</h1>
+@flashMsg()
 
 @form(action = routes.Admin.chargeUser(id)) {
 

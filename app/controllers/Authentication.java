@@ -31,10 +31,9 @@ public class Authentication extends BaseController {
         public String username;
         @Required
         public String password;
-
-        public String pin;
         @Required
         public String confirmPassword;
+        public String pin;
 
         public String validate() {
             if (password != null && !password.equals(confirmPassword)) {
@@ -52,7 +51,7 @@ public class Authentication extends BaseController {
 
     public static Result logout() {
         session().clear();
-        flash("success", "You've been logged out");
+        flash(SUCCESS, "You've been logged out");
         return redirect(routes.Authentication.login());
     }
 
@@ -60,7 +59,7 @@ public class Authentication extends BaseController {
 
         Form<LoginForm> form = form(LoginForm.class).bindFromRequest();
 
-        if(form.hasErrors()) {
+        if (form.hasErrors()) {
             form.reject("form has errors: " + form.errorsAsJson());
             return badRequest(login.render(form));
         } else {
@@ -70,7 +69,7 @@ public class Authentication extends BaseController {
                 form.reject("invalid username");
                 return badRequest(login.render(form));
             }
-            if ( ! BCrypt.checkpw(form.get().password, user.passwordHash) ) {
+            if (!BCrypt.checkpw(form.get().password, user.passwordHash)) {
                 form.reject("invalid password");
                 return badRequest(login.render(form));
             }
@@ -112,7 +111,5 @@ public class Authentication extends BaseController {
             return redirect(routes.Application.authorize());
         }
     }
-
-
 
 }

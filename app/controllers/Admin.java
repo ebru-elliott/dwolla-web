@@ -1,8 +1,10 @@
 package controllers;
 
 import com.dwolla.java.sdk.DwollaServiceAsync;
+import com.dwolla.java.sdk.DwollaServiceSync;
 import com.dwolla.java.sdk.DwollaTypedBytes;
 import com.dwolla.java.sdk.requests.SendRequest;
+import com.dwolla.java.sdk.responses.SendResponse;
 import com.google.gson.Gson;
 import models.User;
 
@@ -13,9 +15,6 @@ import play.mvc.Result;
 import play.mvc.Security;
 import retrofit.RestAdapter;
 import retrofit.Server;
-
-
-import java.io.UnsupportedEncodingException;
 
 
 import views.html.admin.*;
@@ -35,7 +34,6 @@ public class Admin extends BaseController {
     public static class Info {
         @Required
         public String username;
-
         @Required
         public boolean isAdmin;
     }
@@ -58,31 +56,30 @@ public class Admin extends BaseController {
         User user = User.byId(id);
 
         if (form.hasErrors()) {
-
             return badRequest(charge.render(user.username, user.id, form));
 
         } else {
 
-            //todo ee: async vs sync
-            DwollaServiceAsync service = new RestAdapter.Builder().setServer(
-                    new Server(Application.DWOLLA_API_URL)).build().create(DwollaServiceAsync.class);
+            DwollaServiceSync service = new RestAdapter.Builder().setServer(
+                    new Server(Application.DWOLLA_API_URL)).build().create(DwollaServiceSync.class);
 
             String pin = Crypto.decryptAES(user.pin, Application.CRYPTO_SECRET);
 
-            //todo ee: update this with error handling
-            service.send(new DwollaTypedBytes(new Gson(),
-                    new SendRequest(user.token, pin, Application.DWOLLA_DESTINATION_ID, form.get().amount)), new SendCallback());
+            SendResponse response = service.send(new DwollaTypedBytes(new Gson(),
+                   new SendRequest(user.token, pin, Application.DWOLLA_DESTINATION_ID, form.get().amount)));
 
-            flash("success", "Money transfer done.");
+            if (response.Success)
+                flash(SUCCESS, response.Message);
+            else
+                flash(ERROR, response.Message);
             return ok(adminMenu.render(User.all()));
-
         }
 
     }
 
     public static Result deleteUser(Integer id) {
         User.delete(id);
-        flash("success", "user deleted");
+        flash(SUCCESS, "user deleted");
         return ok(adminMenu.render(User.all()));
     }
 
@@ -97,7 +94,6 @@ public class Admin extends BaseController {
 
         if (form.hasErrors()) {
             form.reject("form has errors: " + form.errorsAsJson());
-            System.out.println("ERROR");
             return badRequest(adminEditInfo.render(id, form));
         }
 
@@ -105,7 +101,7 @@ public class Admin extends BaseController {
     }
 
 
-    public static Result updateInfo(Integer id) throws UnsupportedEncodingException {
+    public static Result updateInfo(Integer id)  {
         Form<Info> form = form(Info.class).bindFromRequest();
 
         if (form.hasErrors()) {

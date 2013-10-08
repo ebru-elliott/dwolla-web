@@ -1,0 +1,15 @@
+@import helper._
+@import helper.twitterBootstrap._
+
+
+@if(flash.contains("success")) {
+<p class="success">
+    @flash.get("success")
+</p>
+}
+
+@if(flash.contains("error")) {
+<p class="error">
+    @flash.get("error")
+</p>
+}

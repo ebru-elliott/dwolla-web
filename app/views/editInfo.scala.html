@@ -2,11 +2,12 @@
 
 @import helper._
 
-@main(title = "The 'Biofuel Oasis' application") {
+@main(title = "Biofuel Oasis via Dwolla") {
 
 <h1>Edit Information</h1>
+@flashMsg()
 
-@form(action = routes.Application.editInfo) {
+@form(action = routes.Application.updateInfo) {
 
 @if(infoForm.hasGlobalErrors) {
 <p class="error">

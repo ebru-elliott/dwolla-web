@@ -2,9 +2,10 @@
 
 @import helper._
 
-@main(title = "The 'Biofuel Oasis' application") {
+@main(title = "Biofuel Oasis via Dwolla") {
 
 <h1>Edit Information</h1>
+@flashMsg()
 
 @form(routes.Admin.deleteUser(id), 'class -> "topRight") {
 <input type="submit" value="Delete this user" class="btn danger">
@@ -24,7 +25,6 @@
     @infoForm.errorsAsJson
 </p>
 }
-
 
 @inputText(
 field = infoForm("username"),

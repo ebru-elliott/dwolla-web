@@ -3,10 +3,10 @@
 @import helper._
 @import controllers.BaseController._
 
-
-@main(title = "The 'Biofuel Oasis' application") {
-
+@main(title = "Biofuel Oasis via Dwolla") {
 <h1>Menu for @user.username</h1>
+@flashMsg()
+
 
 <ul>
 <li><a class="name" href="@routes.Application.editInfo">update username or dwolla pin</a></li>

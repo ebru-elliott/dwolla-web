@@ -16,12 +16,15 @@ public class BaseController extends Controller {
     protected static final String DWOLLA_APP_KEY = System.getenv("DWOLLA_APP_KEY");
     protected static final String DWOLLA_APP_SECRET = System.getenv("DWOLLA_APP_SECRET");
     protected static final String DWOLLA_REDIRECT_URI = System.getenv("BASE_HOST_URL") + "/oauth";
+    protected static final String CRYPTO_SECRET = System.getenv("APP_SECRET").substring(0, 16);
 
-    public static final String ID = "id";
-    public static final String USERNAME = "username";
-    public static final String IS_ADMIN = "isAdmin";
+    protected static final String ID = "id";
+    protected static final String USERNAME = "username";
+    protected static final String IS_ADMIN = "isAdmin";
 
-    public static final String CRYPTO_SECRET = System.getenv("APP_SECRET").substring(0, 16);
+    protected static final String SUCCESS = "success";
+    protected static final String ERROR = "error";
+
 
 
     public static void populateSession(User user) {
@@ -39,25 +42,27 @@ public class BaseController extends Controller {
     }
 
     public static User currentUser() {
-        User user = User.byId(currentUserId());
-        return user;
+        return User.byId(currentUserId());
     }
 
-    public static String dwollaAppKey() throws UnsupportedEncodingException {
+    public static String dwollaAppKey() {
         return encode(DWOLLA_APP_KEY);
     }
 
-    public static String dwollaRedirectUri() throws UnsupportedEncodingException {
+    public static String dwollaRedirectUri()  {
         return encode(DWOLLA_REDIRECT_URI);
     }
 
 
-    public static String encode(String value) throws UnsupportedEncodingException {
-        return URLEncoder.encode(value, "UTF-8");
+    public static String encode(String value)  {
+        try {
+           return  URLEncoder.encode(value, "UTF-8");
+        } catch (UnsupportedEncodingException uee) {
+            throw new RuntimeException(uee);
+        }
     }
 
-    public static Result goMenu()
-    {
+    public static Result goMenu() {
         return ok(menu.render(currentUser()));
     }
 
