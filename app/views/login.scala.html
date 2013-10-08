@@ -14,7 +14,6 @@
 </p>
 }
 
-
 @if(flash.contains("success")) {
 <p class="success">
     @flash.get("success")
@@ -36,7 +35,7 @@ args = '_label -> "Password"
 <p>
 
 <p>
-    <a class="name" href="@routes.Application.index">Register</a>
+    <a class="name" href="@routes.Authentication.register">Register</a>
 </p>
 }
 }

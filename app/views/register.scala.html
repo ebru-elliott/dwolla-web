@@ -1,4 +1,4 @@
-@(registrationForm: Form[Application.Registration])
+@(registrationForm: Form[Authentication.Registration])
 
 @import helper._
 
@@ -6,7 +6,7 @@
 
 <h1>Configure your Biofuel Oasis Account:</h1>
 
-@form(action = routes.Application.saveUser, args = 'id -> "registrationform") {
+@form(action = routes.Authentication.register) {
 
 @inputText(
 field = registrationForm("username"),
@@ -32,7 +32,7 @@ args = '_label -> "Dwolla PIN", 'size -> 4
     <input type="submit">
 <p>
 
-<a class="name" href="@routes.Application.usermenu"> Cancel TODO</a>
+<a class="name" href="@routes.Application.menu"> Cancel</a>
 
     }
 

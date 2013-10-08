@@ -1,7 +1,8 @@
 @(user: User)
 
 @import helper._
-@import controllers.Application
+@import controllers.BaseController._
+
 
 @main(title = "The 'Biofuel Oasis' application") {
 
@@ -10,7 +11,8 @@
 <ul>
 <li><a class="name" href="@routes.Application.editInfo">update username or dwolla pin</a></li>
 <li><a class="name" href="@routes.Application.editPassword">update password</a></li>
-<li><a class="name" href="https://www.dwolla.com/oauth/v2/authenticate?scope=send&client_id=@Application.dwollaAppKey()&response_type=code&redirect_uri=@Application.dwollaRedirectUri()">reauthorize</a></li>
+<li><a class="name" href="https://www.dwolla.com/oauth/v2/authenticate?scope=send&client_id=@dwollaAppKey()&response_type=code&redirect_uri=@dwollaRedirectUri()">
+    @if(user.token !=null){re} authorize</a></li>
 <li><a class="name" href="@routes.Authentication.logout">logout</a></li>
 <br/>
 @if(user.isAdmin) {

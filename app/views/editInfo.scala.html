@@ -6,7 +6,7 @@
 
 <h1>Edit Information</h1>
 
-@form(action = routes.Application.updateInfo) {
+@form(action = routes.Application.editInfo) {
 
 @if(infoForm.hasGlobalErrors) {
 <p class="error">
@@ -20,7 +20,6 @@
 </p>
 }
 
-
 @inputText(
 field = infoForm("username"),
 args = '_label -> "Username"
@@ -33,7 +32,7 @@ args = '_label -> "Dwolla PIN"
 
 <p class="buttons"><input type="submit"></p>
 
-<a class="name" href="@routes.Application.usermenu"> Cancel TODO</a>
+<a class="name" href="@routes.Application.menu"> Cancel</a>
 
     }
 

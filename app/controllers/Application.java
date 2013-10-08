@@ -26,16 +26,13 @@ import retrofit.Server;
 import retrofit.http.GET;
 import retrofit.http.Query;
 
-//todo ee: figure out the authorization on certain links, bootstrap admin values, isAdmin check on the usermenu
-//check cancel,clean up error messages, async vs. sync error handling, update redirect_uri to be localhost vs. the whole path
+//todo ee: clean up error messages, async vs. sync error handling,
 
 @Security.Authenticated(Secured.class)
-public class Application extends BaseController {
+public class  Application extends BaseController {
 
-    private static final String TOKEN = "token";
     private static final String AUTHORIZATION_CODE = "authorization_code";
 
-    public static final String CRYPTO_SECRET = System.getenv("APP_SECRET").substring(0, 16);
 
     public static class Info {
         @Required
@@ -60,33 +57,6 @@ public class Application extends BaseController {
 
     }
 
-    public static class Registration {
-        @Required
-        public String username;
-        @Required
-        public String password;
-        @Required
-        public String pin;
-        @Required
-        public String confirmPassword;
-
-        public String validate() {
-            if (password != null && !password.equals(confirmPassword)) {
-                return "password and confirmPassword do not match";
-            }
-            return null;
-        }
-    }
-
-
-    public static class UserForm {
-        @Required
-        public String username;
-        @Required
-        public String pin;
-    }
-
-
     public static class Token {
         String access_token;
         String error;
@@ -98,21 +68,21 @@ public class Application extends BaseController {
         Token getToken(@Query("client_id") String key, @Query("client_secret") String secret, @Query("grant_type") String grantType, @Query("redirect_uri") String redirectUri, @Query("code") String code);
     }
 
+    public static Result index() {
+        if (currentUser() == null)
+            return redirect(routes.Authentication.login());
+        else
+            return redirect(routes.Application.menu());
+    }
 
-    // -- Actions
-
-    /**
-     * Home page
-     * todo: rename this
-     */
-    public static Result index() throws UnsupportedEncodingException {
-        return ok(index.render(encode(DWOLLA_APP_KEY), encode(DWOLLA_REDIRECT_URI)));
+    public static Result authorize() throws UnsupportedEncodingException {
+        return ok(authorize.render(encode(DWOLLA_APP_KEY), encode(DWOLLA_REDIRECT_URI)));
     }
 
     public static Result oauthFlow(String code) {
 
-        System.out.println("oauthFlow");
-        Form<Registration> form = form(Registration.class);
+        if (code == null)
+            return goMenu();
 
         //Retrofit REST client, oauth step2
         RestAdapter restAdapter = new RestAdapter.Builder()
@@ -121,19 +91,15 @@ public class Application extends BaseController {
 
         Dwolla dwolla = restAdapter.create(Dwolla.class);
         Token token = dwolla.getToken(DWOLLA_APP_KEY, DWOLLA_APP_SECRET, AUTHORIZATION_CODE, DWOLLA_REDIRECT_URI, code);
-        session(TOKEN, token.access_token);
+        flash("success", "You've been successfully authenticated with Dwolla");
 
-        if ( ! isAuthenticated() )
-            return ok(register.render(form));
-        else
-        {
-            User u = currentUser();
-            u.token = token.access_token;
-            u.update();
+        User u = currentUser();
+        u.token = token.access_token;
+        u.update();
 
-            return redirect(controllers.routes.Application.usermenu());
-        }
+        return redirect(routes.Application.menu());
     }
+
 
     public static Result editInfo() {
 
@@ -169,9 +135,12 @@ public class Application extends BaseController {
         }
         u.update();
 
-        return redirect(controllers.routes.Application.usermenu());
+        return redirect(routes.Application.menu());
     }
 
+    public static Result menu() {
+        return goMenu();
+    }
 
     public static Result updatePassword() throws UnsupportedEncodingException {
         Form<PasswordForm> form = form(PasswordForm.class).bindFromRequest();
@@ -184,57 +153,12 @@ public class Application extends BaseController {
         if ((BCrypt.checkpw(form.get().oldPassword, u.passwordHash)) && ((form.get().newPassword).equals(form.get().confirmPassword))) {
             u.passwordHash = BCrypt.hashpw(form.get().newPassword, BCrypt.gensalt());
             u.update();
-            return redirect(controllers.routes.Application.usermenu());
+            return redirect(routes.Application.menu());
         } else {
             form.reject("password mismatch");
             return badRequest(editPassword.render(form));
 
         }
-    }
-
-    public static Result usermenu() throws UnsupportedEncodingException {
-        return ok(usermenu.render( currentUser() ));
-    }
-
-
-    public static Result saveUser() throws UnsupportedEncodingException {
-        Form<Registration> form = form(Registration.class).bindFromRequest();
-
-        if (form.hasErrors()) {
-            System.out.println("ERROR!" + form.errorsAsJson());
-            return badRequest(register.render(form));
-
-        } else {
-            User u = new User();
-
-            User dbUser = User.findByUsername(form.get().username);
-            if (dbUser != null)
-                return badRequest(register.render(form));
-
-            u.username = form.get().username;
-            u.pin = Crypto.encryptAES(form.get().pin, CRYPTO_SECRET);
-            u.passwordHash = BCrypt.hashpw(form.get().password, BCrypt.gensalt());
-            u.token = session(TOKEN);
-            u.save();
-
-            System.out.println("User id: " + u.id);
-            populateSession(u);
-            return redirect(controllers.routes.Application.usermenu());
-        }
-    }
-
-
-    public static String dwollaAppKey() throws UnsupportedEncodingException {
-        return encode(DWOLLA_APP_KEY);
-    }
-
-    public static String dwollaRedirectUri() throws UnsupportedEncodingException {
-        return encode(DWOLLA_REDIRECT_URI);
-    }
-
-
-    public static String encode(String value) throws UnsupportedEncodingException {
-        return URLEncoder.encode(value, "UTF-8");
     }
 
 

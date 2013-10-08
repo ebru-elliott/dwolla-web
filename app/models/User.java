@@ -21,7 +21,6 @@ public class User extends Model {
     @Constraints.Required
     public String username;
 
-    @Constraints.Required
     public String pin;
 
     @Constraints.Required

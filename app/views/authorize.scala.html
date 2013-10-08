@@ -1,0 +1,10 @@
+@(key: String, redirect_uri: String)
+
+@import helper._
+
+@main(title = "Biofuel Oasis using Dwolla") {
+
+<a class="name" href="https://www.dwolla.com/oauth/v2/authenticate?scope=send&client_id=@key&response_type=code&redirect_uri=@redirect_uri">authorize dwolla</a>
+<a class="name" href="@routes.Application.menu"> Cancel</a>
+
+}

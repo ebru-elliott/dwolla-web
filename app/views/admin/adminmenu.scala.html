@@ -1,0 +1,13 @@
+@(users:List[User])
+
+@import helper._
+
+@main(title = "The 'Biofuel Oasis' application") {
+
+<ul>
+@for(userx <- users) {
+<li> @userx.username (<a class="name" href="@routes.Admin.editInfo(userx.id)">edit</a>  | <a class="name" href="@routes.Admin.chargeUser(userx.id)">charge</a>) </li>
+}
+</ul>
+
+}

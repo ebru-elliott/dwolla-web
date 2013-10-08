@@ -5,18 +5,19 @@
 GET     /                           controllers.Authentication.login()
 POST    /authenticate               controllers.Authentication.authenticate()
 GET     /logout                     controllers.Authentication.logout()
+GET     /register                   controllers.Authentication.showRegister()
+POST    /register                   controllers.Authentication.register()
+
 
 # User
-GET     /register                   controllers.Application.index()
-
-GET     /oauth                      controllers.Application.oauthFlow(code:String)
-POST    /user                       controllers.Application.saveUser()
+GET     /index                      controllers.Application.index()
 GET     /editInfo                   controllers.Application.editInfo()
 GET     /editPassword               controllers.Application.editPassword()
-POST    /updateInfo                 controllers.Application.updateInfo()
-POST    /updatePassword             controllers.Application.updatePassword()
-
-GET     /usermenu                   controllers.Application.usermenu()
+POST    /editInfo                   controllers.Application.updateInfo()
+POST    /editPassword               controllers.Application.updatePassword()
+GET     /menu                       controllers.Application.menu()
+GET     /authorize                  controllers.Application.authorize()
+GET     /oauth                      controllers.Application.oauthFlow(code:String = null)
 
 
 # Admin
