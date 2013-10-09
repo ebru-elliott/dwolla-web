@@ -63,7 +63,7 @@ public class Application extends BaseController {
         if (currentUser() == null)
             return redirect(routes.Authentication.login());
         else
-            return redirect(routes.Application.menu());
+            return goMenu();
     }
 
     public static Result authorize() {
@@ -71,35 +71,30 @@ public class Application extends BaseController {
     }
 
     public static Result oauthFlow(String code) {
-
         if (code == null) {
             flash(ERROR, "unsuccessful authentication");
-            return goMenu();
+        } else {
+            //Retrofit REST client, oauth step2
+            RestAdapter restAdapter = new RestAdapter.Builder()
+                    .setServer(DWOLLA_API_BASEURL)
+                    .build();
+
+            Dwolla dwolla = restAdapter.create(Dwolla.class);
+            Token token = dwolla.getToken(DWOLLA_APP_KEY, DWOLLA_APP_SECRET, AUTHORIZATION_CODE, DWOLLA_REDIRECT_URI, code);
+            if (token.access_token != null) {
+                flash(SUCCESS, "successful authentication");
+                User u = currentUser();
+                u.token = token.access_token;
+                u.update();
+            } else {
+                flash(ERROR, token.error_description);
+            }
         }
-
-        //Retrofit REST client, oauth step2
-        RestAdapter restAdapter = new RestAdapter.Builder()
-                .setServer(DWOLLA_API_BASEURL)
-                .build();
-
-        Dwolla dwolla = restAdapter.create(Dwolla.class);
-        Token token = dwolla.getToken(DWOLLA_APP_KEY, DWOLLA_APP_SECRET, AUTHORIZATION_CODE, DWOLLA_REDIRECT_URI, code);
-        if (token.access_token != null)
-        {
-            flash(SUCCESS, "successful authentication");
-            User u = currentUser();
-            u.token = token.access_token;
-            u.update();
-        }
-        else
-            flash(ERROR, token.error_description);
-
-        return redirect(routes.Application.menu());
+        return goMenu();
     }
 
 
-    public static Result editInfo() {
-
+    public static Result editInfo()  {
         Info info = new Info();
         User user = currentUser();
         info.username = user.username;
@@ -127,36 +122,31 @@ public class Application extends BaseController {
         String pin = form.get().pin;
 
         if (pin != null) {
-            u.pin = Crypto.encryptAES(pin, CRYPTO_SECRET);
+            u.assignPin(pin);
         }
         u.update();
 
         flash(SUCCESS, "update successful");
-        return redirect(routes.Application.menu());
+        return goMenu();
     }
 
     public static Result menu() {
-        return goMenu();
+        return ok(menu.render(currentUser()));
     }
 
     public static Result updatePassword() {
         Form<PasswordForm> form = form(PasswordForm.class).bindFromRequest();
-
-        if (form.hasErrors()) {
-            return badRequest(editPassword.render(form));
+       if ( ! form.hasErrors() ) {
+            User u = currentUser();
+            if (u.checkPassword(form.get().oldPassword) && ((form.get().newPassword).equals(form.get().confirmPassword))) {
+                u.assignPassword(form.get().newPassword);
+                u.update();
+                flash(SUCCESS, "password updated");
+                return goMenu();
+            } else {
+                form.reject("password mismatch");
+            }
         }
-
-        User u = currentUser();
-        if ((BCrypt.checkpw(form.get().oldPassword, u.passwordHash)) && ((form.get().newPassword).equals(form.get().confirmPassword))) {
-            u.passwordHash = BCrypt.hashpw(form.get().newPassword, BCrypt.gensalt());
-            u.update();
-            return redirect(routes.Application.menu());
-        } else {
-            form.reject("password mismatch");
-            return badRequest(editPassword.render(form));
-
-        }
+        return badRequest(editPassword.render(form));
     }
-
-
 }

@@ -16,7 +16,6 @@ public class BaseController extends Controller {
     protected static final String DWOLLA_APP_KEY = System.getenv("DWOLLA_APP_KEY");
     protected static final String DWOLLA_APP_SECRET = System.getenv("DWOLLA_APP_SECRET");
     protected static final String DWOLLA_REDIRECT_URI = System.getenv("BASE_HOST_URL") + "/oauth";
-    protected static final String CRYPTO_SECRET = System.getenv("APP_SECRET").substring(0, 16);
 
     protected static final String ID = "id";
     protected static final String USERNAME = "username";
@@ -63,7 +62,7 @@ public class BaseController extends Controller {
     }
 
     public static Result goMenu() {
-        return ok(menu.render(currentUser()));
+        return redirect(routes.Application.menu());
     }
 
 }

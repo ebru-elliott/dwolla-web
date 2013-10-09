@@ -12,12 +12,12 @@ POST    /register                   controllers.Authentication.register()
 # User
 GET     /index                      controllers.Application.index()
 GET     /editInfo                   controllers.Application.editInfo()
-GET     /editPassword               controllers.Application.editPassword()
 POST    /editInfo                   controllers.Application.updateInfo()
+GET     /editPassword               controllers.Application.editPassword()
 POST    /editPassword               controllers.Application.updatePassword()
-GET     /menu                       controllers.Application.menu()
 GET     /authorize                  controllers.Application.authorize()
 GET     /oauth                      controllers.Application.oauthFlow(code:String ?= null)
+GET     /menu                       controllers.Application.menu()
 
 
 # Admin

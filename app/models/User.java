@@ -2,6 +2,8 @@ package models;
 
 import com.avaje.ebean.Ebean;
 import org.apache.commons.codec.binary.Base64;
+import org.mindrot.jbcrypt.BCrypt;
+import play.api.libs.Crypto;
 import play.data.validation.Constraints;
 import play.db.ebean.Model;
 
@@ -31,6 +33,8 @@ public class User extends Model {
 
     public String token;
 
+    protected static final String CRYPTO_SECRET = System.getenv("APP_SECRET").substring(0, 16);
+
 
     public static Finder<Integer, User> finder = new Finder<Integer, User>(Integer.class, User.class);
 
@@ -52,6 +56,22 @@ public class User extends Model {
 
     public static User findByUsername(String username) {
         return finder.where().eq("username", username).findUnique();
+    }
+
+    public void assignPassword(String password) {
+        passwordHash = BCrypt.hashpw(password, BCrypt.gensalt());
+    }
+
+    public boolean checkPassword(String candidate) {
+        return BCrypt.checkpw(candidate, passwordHash);
+    }
+
+    public void assignPin(String pin) {
+        this.pin = Crypto.encryptAES(pin, CRYPTO_SECRET);
+    }
+
+    public String fetchPin() {
+        return Crypto.decryptAES(pin, CRYPTO_SECRET);
     }
 
     @Override

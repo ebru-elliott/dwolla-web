@@ -57,30 +57,28 @@ public class Admin extends BaseController {
 
         if (form.hasErrors()) {
             return badRequest(charge.render(user.username, user.id, form));
-
         } else {
-
             DwollaServiceSync service = new RestAdapter.Builder().setServer(
                     new Server(Application.DWOLLA_API_URL)).build().create(DwollaServiceSync.class);
 
-            String pin = Crypto.decryptAES(user.pin, Application.CRYPTO_SECRET);
+            String pin = user.fetchPin();
 
             SendResponse response = service.send(new DwollaTypedBytes(new Gson(),
                    new SendRequest(user.token, pin, Application.DWOLLA_DESTINATION_ID, form.get().amount)));
 
-            if (response.Success)
+            if (response.Success) {
                 flash(SUCCESS, response.Message);
-            else
+            } else {
                 flash(ERROR, response.Message);
-            return ok(adminMenu.render(User.all()));
+            }
+            return goAdminMenu();
         }
-
     }
 
     public static Result deleteUser(Integer id) {
         User.delete(id);
         flash(SUCCESS, "user deleted");
-        return ok(adminMenu.render(User.all()));
+        return goAdminMenu();
     }
 
     public static Result editInfo(Integer id) {
@@ -114,7 +112,11 @@ public class Admin extends BaseController {
         u.isAdmin = form.get().isAdmin;
         u.update();
 
-        return ok(adminMenu.render(User.all()));
+        return goAdminMenu();
+    }
+
+    protected static Result goAdminMenu() {
+        return redirect(routes.Admin.menu());
     }
 
 

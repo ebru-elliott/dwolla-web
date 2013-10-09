@@ -59,27 +59,18 @@ public class Authentication extends BaseController {
 
         Form<LoginForm> form = form(LoginForm.class).bindFromRequest();
 
-        if (form.hasErrors()) {
-            form.reject("form has errors: " + form.errorsAsJson());
-            return badRequest(login.render(form));
-        } else {
-
+        if ( ! form.hasErrors() ) {
             User user = User.findByUsername(form.get().username);
-            if (user == null) {
-                form.reject("invalid username");
-                return badRequest(login.render(form));
+            if (user == null || ! user.checkPassword(form.get().password)) {
+                form.reject("invalid credentials");
+            } else {
+                session().clear();
+                populateSession(user);
+                return goMenu();
             }
-            if (!BCrypt.checkpw(form.get().password, user.passwordHash)) {
-                form.reject("invalid password");
-                return badRequest(login.render(form));
-            }
-
-            session().clear();
-
-            populateSession(user);
-
-            return redirect(controllers.routes.Application.menu());
         }
+        return badRequest(login.render(form));
+
     }
 
     public static Result showRegister() {
@@ -103,8 +94,8 @@ public class Authentication extends BaseController {
                 return badRequest(register.render(form));
 
             u.username = form.get().username;
-            u.pin = Crypto.encryptAES(form.get().pin, CRYPTO_SECRET);
-            u.passwordHash = BCrypt.hashpw(form.get().password, BCrypt.gensalt());
+            u.assignPassword( form.get().password );
+            u.assignPin(form.get().pin);
             u.save();
 
             populateSession(u);
