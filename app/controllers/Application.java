@@ -59,6 +59,11 @@ public class Application extends BaseController {
         Token getToken(@Query("client_id") String key, @Query("client_secret") String secret, @Query("grant_type") String grantType, @Query("redirect_uri") String redirectUri, @Query("code") String code);
     }
 
+    public static Result mongo()
+    {
+        User.first();
+        return TODO;
+    }
     public static Result index() {
         if (currentUser() == null)
             return redirect(routes.Authentication.login());

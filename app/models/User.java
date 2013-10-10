@@ -1,15 +1,15 @@
 package models;
 
-import com.avaje.ebean.Ebean;
-import org.apache.commons.codec.binary.Base64;
 import org.mindrot.jbcrypt.BCrypt;
+import org.mongojack.JacksonDBCollection;
 import play.api.libs.Crypto;
 import play.data.validation.Constraints;
 import play.db.ebean.Model;
 
+
 import javax.persistence.*;
-import java.util.ArrayList;
 import java.util.List;
+
 
 
 @Entity
@@ -18,6 +18,7 @@ public class User extends Model {
 
 
     @Id
+//    @ObjectId
     public Integer id;
 
     @Constraints.Required
@@ -33,13 +34,29 @@ public class User extends Model {
 
     public String token;
 
+
     protected static final String CRYPTO_SECRET = System.getenv("APP_SECRET").substring(0, 16);
 
-
+    //ebean
     public static Finder<Integer, User> finder = new Finder<Integer, User>(Integer.class, User.class);
+
+    static JacksonDBCollection<User, Integer> coll = JacksonDBCollection.wrap( MongoDB.theDB().getCollection("users"), User.class,
+            Integer.class);
+
+    public static User first() {
+        return User.coll.findOneById(1);
+   }
+
+    public static void insertTest() {
+        User user = new User();
+        user.id = 1;
+        user.username = "ebru";
+        coll.insert(user);
+    }
 
     public User() {
     }
+
 
     public static List<User> all() {
         return finder.all();

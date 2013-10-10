@@ -12,7 +12,9 @@ object ApplicationBuild extends Build {
       javaJdbc,
       javaEbean,
       "com.squareup.retrofit" % "retrofit" %   "1.2.2" ,
-      "org.mindrot" % "jbcrypt" % "0.3m"
+      "org.mindrot" % "jbcrypt" % "0.3m",
+      "org.mongodb" % "mongo-java-driver" % "2.11.3",
+      "org.mongojack" % "mongojack" % "2.0.0-RC5"
     )
 
     val main = play.Project(appName, appVersion, appDependencies).settings(

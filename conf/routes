@@ -18,7 +18,7 @@ POST    /editPassword               controllers.Application.updatePassword()
 GET     /authorize                  controllers.Application.authorize()
 GET     /oauth                      controllers.Application.oauthFlow(code:String ?= null)
 GET     /menu                       controllers.Application.menu()
-
+GET     /mongo                       controllers.Application.mongo()
 
 # Admin
 GET     /admin/menu                  controllers.Admin.menu()
