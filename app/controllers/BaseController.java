@@ -25,9 +25,8 @@ public class BaseController extends Controller {
     protected static final String ERROR = "error";
 
 
-
     public static void populateSession(User user) {
-        session(ID, String.valueOf(user.id));
+        session(ID, user.id);
         session(USERNAME, user.username);
         session(IS_ADMIN, String.valueOf(user.isAdmin));
     }
@@ -36,8 +35,8 @@ public class BaseController extends Controller {
         return session(ID) != null;
     }
 
-    public static Integer currentUserId() {
-        return Integer.valueOf(session(ID));
+    public static String currentUserId() {
+        return session(ID);
     }
 
     public static User currentUser() {
@@ -48,14 +47,14 @@ public class BaseController extends Controller {
         return encode(DWOLLA_APP_KEY);
     }
 
-    public static String dwollaRedirectUri()  {
+    public static String dwollaRedirectUri() {
         return encode(DWOLLA_REDIRECT_URI);
     }
 
 
-    public static String encode(String value)  {
+    public static String encode(String value) {
         try {
-           return  URLEncoder.encode(value, "UTF-8");
+            return URLEncoder.encode(value, "UTF-8");
         } catch (UnsupportedEncodingException uee) {
             throw new RuntimeException(uee);
         }

@@ -59,9 +59,9 @@ public class Authentication extends BaseController {
 
         Form<LoginForm> form = form(LoginForm.class).bindFromRequest();
 
-        if ( ! form.hasErrors() ) {
+        if (!form.hasErrors()) {
             User user = User.findByUsername(form.get().username);
-            if (user == null || ! user.checkPassword(form.get().password)) {
+            if (user == null || !user.checkPassword(form.get().password)) {
                 form.reject("invalid credentials");
             } else {
                 session().clear();
@@ -94,7 +94,7 @@ public class Authentication extends BaseController {
                 return badRequest(register.render(form));
 
             u.username = form.get().username;
-            u.assignPassword( form.get().password );
+            u.assignPassword(form.get().password);
             u.assignPin(form.get().pin);
             u.save();
 

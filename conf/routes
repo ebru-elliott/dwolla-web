@@ -18,15 +18,14 @@ POST    /editPassword               controllers.Application.updatePassword()
 GET     /authorize                  controllers.Application.authorize()
 GET     /oauth                      controllers.Application.oauthFlow(code:String ?= null)
 GET     /menu                       controllers.Application.menu()
-GET     /mongo                       controllers.Application.mongo()
 
 # Admin
 GET     /admin/menu                  controllers.Admin.menu()
-GET     /admin/charge/:id            controllers.Admin.editAmount(id:Integer)
-POST    /admin/charge/:id            controllers.Admin.chargeUser(id:Integer)
-GET     /admin/editInfo/:id          controllers.Admin.editInfo(id:Integer)
-POST    /admin/editInfo/:id          controllers.Admin.updateInfo(id:Integer)
-POST    /admin/deleteUser/:id        controllers.Admin.deleteUser(id:Integer)
+GET     /admin/charge/:id            controllers.Admin.editAmount(id:String)
+POST    /admin/charge/:id            controllers.Admin.chargeUser(id:String)
+GET     /admin/editInfo/:id          controllers.Admin.editInfo(id:String)
+POST    /admin/editInfo/:id          controllers.Admin.updateInfo(id:String)
+POST    /admin/deleteUser/:id        controllers.Admin.deleteUser(id:String)
 
 
 # Map static resources from the /public folder to the /assets URL path

@@ -1,25 +1,24 @@
 package models;
 
 import org.mindrot.jbcrypt.BCrypt;
+import org.mongojack.DBQuery;
 import org.mongojack.JacksonDBCollection;
+import org.mongojack.ObjectId;
+import org.mongojack.Id;
+
+
+import play.Logger;
 import play.api.libs.Crypto;
 import play.data.validation.Constraints;
-import play.db.ebean.Model;
 
-
-import javax.persistence.*;
+import javax.persistence.Column;
 import java.util.List;
 
-
-
-@Entity
-@Table(name = "USER_ACCOUNT")
-public class User extends Model {
-
+public class User {
 
     @Id
-//    @ObjectId
-    public Integer id;
+    @ObjectId
+    public String id;
 
     @Constraints.Required
     public String username;
@@ -34,45 +33,37 @@ public class User extends Model {
 
     public String token;
 
-
     protected static final String CRYPTO_SECRET = System.getenv("APP_SECRET").substring(0, 16);
 
-    //ebean
-    public static Finder<Integer, User> finder = new Finder<Integer, User>(Integer.class, User.class);
-
-    static JacksonDBCollection<User, Integer> coll = JacksonDBCollection.wrap( MongoDB.theDB().getCollection("users"), User.class,
-            Integer.class);
-
-    public static User first() {
-        return User.coll.findOneById(1);
-   }
-
-    public static void insertTest() {
-        User user = new User();
-        user.id = 1;
-        user.username = "ebru";
-        coll.insert(user);
-    }
 
     public User() {
     }
 
-
     public static List<User> all() {
-        return finder.all();
+        return MongoDB.theUsersCollection().find().toArray();
     }
 
-    public static User byId(Integer id) {
-        return finder.byId(id);
+    public static User byId(String id) {
+        return MongoDB.theUsersCollection().findOneById(id);
     }
 
-    public static void delete(Integer id) {
-        finder.ref(id).delete();
+    public static void delete(String id) {
+        MongoDB.theUsersCollection().removeById(id);
+    }
+
+    public void save() {
+        MongoDB.theUsersCollection().save(this);
+    }
+
+    public void update() {
+        MongoDB.theUsersCollection().save(this);
     }
 
 
     public static User findByUsername(String username) {
-        return finder.where().eq("username", username).findUnique();
+        List<User> users = MongoDB.theUsersCollection().find().is("username", username).toArray();
+        if (users == null || users.isEmpty()) return null;
+        else return users.get(0);
     }
 
     public void assignPassword(String password) {

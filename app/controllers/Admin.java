@@ -43,14 +43,14 @@ public class Admin extends BaseController {
         return ok(adminMenu.render(User.all()));
     }
 
-    public static Result editAmount(Integer id) {
+    public static Result editAmount(String id) {
         Form<ChargeForm> form = form(ChargeForm.class);
         User user = User.byId(id);
         return ok(charge.render(user.username, user.id, form));
     }
 
 
-    public static Result chargeUser(Integer id) {
+    public static Result chargeUser(String id) {
         Form<ChargeForm> form = form(ChargeForm.class).bindFromRequest();
 
         User user = User.byId(id);
@@ -64,7 +64,7 @@ public class Admin extends BaseController {
             String pin = user.fetchPin();
 
             SendResponse response = service.send(new DwollaTypedBytes(new Gson(),
-                   new SendRequest(user.token, pin, Application.DWOLLA_DESTINATION_ID, form.get().amount)));
+                    new SendRequest(user.token, pin, Application.DWOLLA_DESTINATION_ID, form.get().amount)));
 
             if (response.Success) {
                 flash(SUCCESS, response.Message);
@@ -75,13 +75,13 @@ public class Admin extends BaseController {
         }
     }
 
-    public static Result deleteUser(Integer id) {
+    public static Result deleteUser(String id) {
         User.delete(id);
         flash(SUCCESS, "user deleted");
         return goAdminMenu();
     }
 
-    public static Result editInfo(Integer id) {
+    public static Result editInfo(String id) {
         User u = User.byId(id);
 
         Info info = new Info();
@@ -99,7 +99,7 @@ public class Admin extends BaseController {
     }
 
 
-    public static Result updateInfo(Integer id)  {
+    public static Result updateInfo(String id) {
         Form<Info> form = form(Info.class).bindFromRequest();
 
         if (form.hasErrors()) {
@@ -119,5 +119,13 @@ public class Admin extends BaseController {
         return redirect(routes.Admin.menu());
     }
 
+
+    public static void bootstrapAdmin() {
+        User u = new User();
+        u.username = "admin";
+        u.assignPassword("admin");
+        u.isAdmin = true;
+        u.save();
+    }
 
 }

@@ -15,6 +15,7 @@ public class AdminSecured extends Security.Authenticator {
             return null;
         }
     }
+
     @Override
     public Result onUnauthorized(Http.Context ctx) {
         return redirect(routes.Authentication.login());

@@ -2,6 +2,9 @@ package models;
 
 import com.mongodb.DB;
 import com.mongodb.MongoClient;
+import org.mongojack.JacksonDBCollection;
+import play.Logger;
+import play.Play;
 
 import java.net.UnknownHostException;
 
@@ -13,9 +16,18 @@ public class MongoDB {
         return instance.db;
     }
 
+    public static JacksonDBCollection<User, String> theUsersCollection() {
+        return instance.usersCollection;
+    }
+
+
     protected DB db;
 
+    protected JacksonDBCollection<User, String> usersCollection;
+
+
     public MongoDB() {
+        Logger.info("MongoDB init");
         init();
     }
 
@@ -24,13 +36,13 @@ public class MongoDB {
         try {
             mongo = new MongoClient();
         } catch (UnknownHostException e) {
-            e.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
+            throw new RuntimeException(e);
         }
 
-        // Get "logs" collection from the "websites" DB.
-        db = mongo.getDB("dwolla-web"); //app.configuration().getString("mongodb.database"));
+
+        db = mongo.getDB(Play.application().configuration().getString("mongodb.database"));
+
+        usersCollection = JacksonDBCollection.wrap(db.getCollection("users"), User.class, String.class);
+
     }
-
-
-
 }

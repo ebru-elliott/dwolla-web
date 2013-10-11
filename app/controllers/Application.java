@@ -1,8 +1,6 @@
 package controllers;
 
 import models.User;
-import org.mindrot.jbcrypt.BCrypt;
-import play.libs.Crypto;
 import play.mvc.*;
 import play.data.*;
 
@@ -59,11 +57,7 @@ public class Application extends BaseController {
         Token getToken(@Query("client_id") String key, @Query("client_secret") String secret, @Query("grant_type") String grantType, @Query("redirect_uri") String redirectUri, @Query("code") String code);
     }
 
-    public static Result mongo()
-    {
-        User.first();
-        return TODO;
-    }
+
     public static Result index() {
         if (currentUser() == null)
             return redirect(routes.Authentication.login());
@@ -99,7 +93,7 @@ public class Application extends BaseController {
     }
 
 
-    public static Result editInfo()  {
+    public static Result editInfo() {
         Info info = new Info();
         User user = currentUser();
         info.username = user.username;
@@ -129,6 +123,7 @@ public class Application extends BaseController {
         if (pin != null) {
             u.assignPin(pin);
         }
+
         u.update();
 
         flash(SUCCESS, "update successful");
@@ -141,10 +136,11 @@ public class Application extends BaseController {
 
     public static Result updatePassword() {
         Form<PasswordForm> form = form(PasswordForm.class).bindFromRequest();
-       if ( ! form.hasErrors() ) {
+        if (!form.hasErrors()) {
             User u = currentUser();
             if (u.checkPassword(form.get().oldPassword) && ((form.get().newPassword).equals(form.get().confirmPassword))) {
                 u.assignPassword(form.get().newPassword);
+
                 u.update();
                 flash(SUCCESS, "password updated");
                 return goMenu();
