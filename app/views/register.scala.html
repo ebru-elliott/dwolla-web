@@ -2,45 +2,28 @@
 
 @import helper._
 
-@main(title = "Biofuel Oasis via Dwolla") {
+@implicitFieldConstructor = @{ FieldConstructor(twitterBootstrapInput.render) }
+
+@main {
+
 <h1>Configure your Biofuel Oasis Account</h1>
+
+@form(routes.Authentication.register) {
+
 @flashMsg()
+@globalErrorMsg(registrationForm)
 
-@form(action = routes.Authentication.register) {
+<fieldset>
+    @inputText(registrationForm("username"),'_label -> "Username")
+    @inputPassword(registrationForm("password"),'_label -> "Password")
+    @inputPassword(registrationForm("confirmPassword"),'_label -> "Confirm Password")
+    @inputPassword(registrationForm("pin"),'_label -> "Dwolla PIN")
+</fieldset>
 
-@if(registrationForm.hasGlobalErrors) {
-<p class="error">
-    @registrationForm.globalError.message
-</p>
+<div class="actions">
+    <input type="submit" value="Register" class="btn primary">
+    <a href="@routes.Application.menu()" class="btn">Cancel</a>
+</div>
+
 }
-
-
-@inputText(
-field = registrationForm("username"),
-args = '_label -> "Username"
-)
-
-@inputPassword(
-field = registrationForm("password"),
-args = '_label -> "Password"
-)
-
-@inputPassword(
-field = registrationForm("confirmPassword"),
-args = '_label -> "Confirm Password"
-)
-
-@inputPassword(
-field = registrationForm("pin"),
-args = '_label -> "Dwolla PIN", 'size -> 4
-)
-
-<p class="buttons">
-    <input type="submit">
-<p>
-
-<a class="name" href="@routes.Application.menu"> Cancel</a>
-
-    }
-
-    }
+}

@@ -2,39 +2,26 @@
 
 @import helper._
 
-@main(title = "Biofuel Oasis via Dwolla") {
+@implicitFieldConstructor = @{ FieldConstructor(twitterBootstrapInput.render) }
+
+@main {
 
 <h1>Edit Information</h1>
+
+@form(routes.Application.updateInfo) {
+
 @flashMsg()
+@globalErrorMsg(infoForm)
 
-@form(action = routes.Application.updateInfo) {
+<fieldset>
+    @inputText(infoForm("username"),'_label -> "Username")
+    @inputPassword(infoForm("pin"),'_label -> "Dwolla PIN")
+</fieldset>
 
-@if(infoForm.hasGlobalErrors) {
-<p class="error">
-    @infoForm.globalError.message
-</p>
+<div class="actions">
+    <input type="submit" value="Update" class="btn primary">
+    <a href="@routes.Application.menu()" class="btn">Cancel</a>
+</div>
+
 }
-
-@if(infoForm.hasErrors) {
-<p class="error">
-    @infoForm.errorsAsJson
-</p>
 }
-
-@inputText(
-field = infoForm("username"),
-args = '_label -> "Username"
-)
-
-@inputPassword(
-field = infoForm("pin"),
-args = '_label -> "Dwolla PIN"
-)
-
-<p class="buttons"><input type="submit"></p>
-
-<a class="name" href="@routes.Application.menu"> Cancel</a>
-
-    }
-
-    }

@@ -2,11 +2,15 @@
 
 @import helper._
 
-@main(title = "Biofuel Oasis via Dwolla") {
+@main {
+
 <h1>Authorization with Dwolla</h1>
+
 @flashMsg()
 
-<a class="name" href="https://www.dwolla.com/oauth/v2/authenticate?scope=send&client_id=@key&response_type=code&redirect_uri=@redirect_uri">authorize dwolla</a>
-<a class="name" href="@routes.Application.menu"> Cancel</a>
+<div class="actions">
+    <a href="https://www.dwolla.com/oauth/v2/authenticate?scope=send&client_id=@key&response_type=code&redirect_uri=@redirect_uri" class="btn primary">authorize dwolla</a>
+    <a href="@routes.Application.menu()" class="btn">Cancel</a>
+</div>
 
 }

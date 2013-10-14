@@ -2,14 +2,15 @@
 # This file defines all application routes (Higher priority routes first)
 # ~~~~
 
-GET     /                           controllers.Authentication.login()
-POST    /authenticate               controllers.Authentication.authenticate()
-GET     /logout                     controllers.Authentication.logout()
-GET     /register                   controllers.Authentication.showRegister()
-POST    /register                   controllers.Authentication.register()
+#Authentication
+GET     /                          controllers.Authentication.login()
+POST    /authenticate              controllers.Authentication.authenticate()
+GET     /logout                    controllers.Authentication.logout()
+GET     /register                  controllers.Authentication.showRegister()
+POST    /register                  controllers.Authentication.register()
 
 
-# User
+#Application
 GET     /index                      controllers.Application.index()
 GET     /editInfo                   controllers.Application.editInfo()
 POST    /editInfo                   controllers.Application.updateInfo()
@@ -20,13 +21,13 @@ GET     /oauth                      controllers.Application.oauthFlow(code:Strin
 GET     /menu                       controllers.Application.menu()
 
 
-# Admin
-GET     /admin/menu                  controllers.Admin.menu()
-GET     /admin/charge/:id            controllers.Admin.editAmount(id:Integer)
-POST    /admin/charge/:id            controllers.Admin.chargeUser(id:Integer)
-GET     /admin/editInfo/:id          controllers.Admin.editInfo(id:Integer)
-POST    /admin/editInfo/:id          controllers.Admin.updateInfo(id:Integer)
-POST    /admin/deleteUser/:id        controllers.Admin.deleteUser(id:Integer)
+#Admin
+GET     /admin/menu                 controllers.Admin.menu()
+GET     /admin/charge/:id           controllers.Admin.editAmount(id:Integer)
+POST    /admin/charge/:id           controllers.Admin.chargeUser(id:Integer)
+GET     /admin/editInfo/:id         controllers.Admin.editInfo(id:Integer)
+POST    /admin/editInfo/:id         controllers.Admin.updateInfo(id:Integer)
+POST    /admin/deleteUser/:id       controllers.Admin.deleteUser(id:Integer)
 
 
 # Map static resources from the /public folder to the /assets URL path

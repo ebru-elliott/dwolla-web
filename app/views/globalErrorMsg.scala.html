@@ -1,0 +1,13 @@
+@(theForm : Form[_])
+
+@import helper._
+@import helper.twitterBootstrap._
+
+@if(theForm.hasGlobalErrors) {
+<p class="alert-message error">
+   @theForm.globalError.message
+</p>
+}
+
+
+

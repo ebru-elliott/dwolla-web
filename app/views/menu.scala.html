@@ -1,22 +1,27 @@
 @(user: User)
 
 @import helper._
+@import helper.twitterBootstrap._
+
 @import controllers.BaseController._
 
-@main(title = "Biofuel Oasis via Dwolla") {
-<h1>Menu for @user.username</h1>
+@main {
+
+<h1>Menu</h1>
+
 @flashMsg()
 
-
-<ul>
-<li><a class="name" href="@routes.Application.editInfo">update username or dwolla pin</a></li>
-<li><a class="name" href="@routes.Application.editPassword">update password</a></li>
-<li><a class="name" href="https://www.dwolla.com/oauth/v2/authenticate?scope=send&client_id=@dwollaAppKey()&response_type=code&redirect_uri=@dwollaRedirectUri()">
+<small>You are logged in as @user.username </small>
+<br> <br>
+<ul style="list-style: none">
+<li><a href="@routes.Application.editInfo">update username or dwolla pin</a></li>
+<li><a href="@routes.Application.editPassword">update password</a></li>
+<li><a href="https://www.dwolla.com/oauth/v2/authenticate?scope=send&client_id=@dwollaAppKey()&response_type=code&redirect_uri=@dwollaRedirectUri()">
     @if(user.token !=null){re} authorize</a></li>
-<li><a class="name" href="@routes.Authentication.logout">logout</a></li>
+<li><a  href="@routes.Authentication.logout">logout</a></li>
 <br/>
 @if(user.isAdmin) {
-<li><a class="name" href="@routes.Admin.menu">admin</a></li>
+<li><a  href="@routes.Admin.menu">admin</a></li>
 }
 </ul>
 

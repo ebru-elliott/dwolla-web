@@ -2,15 +2,33 @@
 
 @import helper._
 
-@main(title = "Biofuel Oasis via Dwolla") {
+@main {
 
 <h1>Admin Menu</h1>
+
 @flashMsg()
 
-<ul>
-@for(userx <- users) {
-<li> @userx.username (<a class="name" href="@routes.Admin.editInfo(userx.id)">edit</a>  | <a class="name" href="@routes.Admin.chargeUser(userx.id)">charge</a>) </li>
-}
-</ul>
+<table class="computers zebra-striped">
+    <thead>
+    <tr>
+        <th>Username</th>
+        <th>Action</th>
+    </tr>
+    </thead>
+    <tbody>
+
+    @for(userx <- users) {
+    <tr>
+        <td> @userx.username</td>
+        <td><a href="@routes.Admin.editInfo(userx.id)">edit</a> | <a href="@routes.Admin.chargeUser(userx.id)">charge</a></td>
+    </tr>
+    }
+    </tbody>
+
+</table>
+
+<div class="actions">
+    <a href="@routes.Application.menu()" class="btn">Cancel</a>
+</div>
 
 }

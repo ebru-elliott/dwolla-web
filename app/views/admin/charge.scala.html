@@ -2,24 +2,31 @@
 
 @import helper._
 
-@main(title = "Biofuel Oasis via Dwolla") {
+@implicitFieldConstructor = @{ FieldConstructor(twitterBootstrapInput.render) }
+
+@main  {
 
 <h1>Charge the Biofuel Oasis Account</h1>
+
+@form(routes.Admin.chargeUser(id)) {
+
 @flashMsg()
+@globalErrorMsg(chargeForm)
 
-@form(action = routes.Admin.chargeUser(id)) {
+<fieldset>
+    <div class="clearfix ">
+        <label>Username </label>
+        <div class="input">
+            <b>@username</b>
+        </div>
+    </div>
 
-Username: @username
+    @inputText(chargeForm("amount"),'_label -> "Amount")
+</fieldset>
 
-@inputText(
-field = chargeForm("amount"),
-args = '_label -> "Amount", 'size -> 10
-)
-
-<p class="buttons"><input type="submit"></p>
-
-<a class="name" href="@routes.Admin.menu">Cancel</a>
-
-    }
-
-    }
+<div class="actions">
+    <input type="submit" value="Update" class="btn primary">
+    <a href="@routes.Admin.menu()" class="btn">Cancel</a>
+</div>
+}
+}

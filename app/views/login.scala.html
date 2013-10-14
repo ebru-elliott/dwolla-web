@@ -1,36 +1,27 @@
 @(loginForm: Form[Authentication.LoginForm])
 
 @import helper._
-@import helper.twitterBootstrap._
 
-@main("Please sign in to Biofuel Oasis with Dwolla Application") {
-<h1>Login or Register</h1>
-@flashMsg()
+@implicitFieldConstructor = @{ FieldConstructor(twitterBootstrapInput.render) }
+
+@main {
+
+<h1>Sign In</h1>
 
 @form(routes.Authentication.authenticate) {
 
-@if(loginForm.hasGlobalErrors) {
-<p class="error">
-    @loginForm.globalError.message
-</p>
-}
+@flashMsg()
+@globalErrorMsg(loginForm)
 
-@inputText(
-field = loginForm("username"),
-args = '_label -> "Username"
-)
+<fieldset>
+    @inputText(loginForm("username"),'_label -> "Username")
+    @inputPassword(loginForm("password"),'_label -> "Password")
+</fieldset>
 
-@inputPassword(
-field = loginForm("password"),
-args = '_label -> "Password"
-)
+<div class="actions">
+    <input type="submit" value="Login" class="btn primary">
+    <a href="@routes.Authentication.register()" class="btn">Register</a>
+</div>
 
-<p class="buttons">
-    <input type="submit">
-<p>
-
-<p>
-    <a class="name" href="@routes.Authentication.register">Register</a>
-</p>
 }
 }

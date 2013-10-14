@@ -1,75 +1,50 @@
-html, body {
-    padding: 0;
-    margin: 0;
-    font-family: Helvetica, Arial;
-    color: #3A4244;
+html {
+    background: #eee;
 }
 
-header {
-    padding: 10px 30px;
-    background: #CAE7EC;
+header h1 {
+    padding: 0.4em 1.1em;
+    color: white;
+    font-weight: normal;
     font-size: 24px;
 }
 
-header a {
-    color: #1A1E20;
-    text-decoration: none;
+section#main {
+    position: relative;
+    padding: 5em 2em;
+    border-bottom: 1px solid #ccc;
+    min-height: 600px;
 }
 
-section {
-    padding: 10px 30px;
+section#main .topRight {
+    position: absolute;
+    right: 20px;
+    top: 70px;
 }
 
-#userform dd {
-    display: inline-block;
+table.computers em {
+    color: #aaa;
 }
 
-#userform dd.info {
-    display: none;
+table.computers .introduced, table.computers .discontinued {
+    width: 10%;
+    min-width: 100px;
 }
 
-#userform dd.error {
-    margin-left: 10px;
-    font-size: 12px;
-    color: #c00;
+table.computers .company_name {
+    width: 30%;
+    min-width: 300px;
 }
 
-#userform label {
-    font-size: 14px;
+table.computers .header a {
 }
 
-#userform dl {
-    background: #FAFAFA;
-    padding: 10px;
+#actions {
+    position: relative;
 }
 
-#userform dl.error {
-    background: #FBDDE6;
+#actions #add {
+    position: absolute;
+    right: 0;
+    top: 0;
 }
-
-#userform dt {
-    display: inline-block;
-    width: 160px;
-}
-
-.buttons {
-    background: #536565;
-    padding: 10px;
-    margin-top: 30px;
-}
-
-.buttons input, .buttons a {
-    border: 1px solid #2F3A3A;
-    background: #fff;
-    font-size: 12px;
-    cursor: pointer;
-    display: inline-block;
-    padding: 5px 10px;
-    text-decoration: none;
-    color: #000;
-}
-
-ul {
-    padding-left: 20px;
-}
-
