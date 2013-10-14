@@ -10,9 +10,6 @@ import java.net.URLEncoder;
 public class BaseController extends Controller {
 
     /**
-     * See <a href="https://developers.dwolla.com/dev/pages/auth#oauth-token">OAuth Flow</a>
-     */
-    /**
      * Dwolla REST API uses this constant if the request is coming from a web server application
      */
     protected static final String AUTHORIZATION_CODE = "authorization_code";

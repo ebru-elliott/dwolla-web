@@ -1,8 +1,7 @@
 package controllers;
 
 import models.User;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import play.Logger;
 import play.data.Form;
 import play.data.validation.Constraints.Required;
 import play.mvc.Result;
@@ -15,8 +14,6 @@ import static play.data.Form.form;
  * Controller for authentication tasks (login, logout, authenticate the user..)
  */
 public class Authentication extends BaseController {
-
-    public static Logger logger = LoggerFactory.getLogger(Authentication.class);
 
     public static class LoginForm {
         @Required
@@ -60,7 +57,7 @@ public class Authentication extends BaseController {
     public static Result logout() {
         session().clear();
         flash(SUCCESS, "You've been logged out");
-        logger.info("user is logged out, redirecting to the login");
+        Logger.info("user is logged out, redirecting to the login");
         return redirect(routes.Authentication.login());
     }
 
@@ -80,12 +77,12 @@ public class Authentication extends BaseController {
             } else {
                 session().clear();
                 populateSession(user);
-                logger.info("username:{} authenticated, redirecting to the user menu", user.username);
+                Logger.info("username:" + user.username + " authenticated, redirecting to the user menu");
                 return goMenu();
             }
         }
 
-        logger.info("loginForm has errors:{}", form.errors());
+        Logger.info("loginForm has errors:" + form.errors());
         return badRequest(login.render(form));
 
     }
@@ -97,7 +94,7 @@ public class Authentication extends BaseController {
      */
     public static Result showRegister() {
         session().clear();
-        logger.info("render user registration");
+        Logger.info("render user registration");
         return ok(register.render(form(Registration.class)));
     }
 
@@ -110,7 +107,7 @@ public class Authentication extends BaseController {
         Form<Registration> form = form(Registration.class).bindFromRequest();
 
         if (form.hasErrors()) {
-            logger.info("registrationForm has errors:{}", form.errors());
+            Logger.info("registrationForm has errors:" + form.errors());
             return badRequest(register.render(form));
 
         } else {
@@ -128,7 +125,7 @@ public class Authentication extends BaseController {
             u.save();
 
             populateSession(u);
-            logger.info("username:{} registered, redirecting to the authorization", u.username);
+            Logger.info("username:" + u.username + " registered, redirecting to the authorization");
             return redirect(routes.Application.authorize());
         }
     }

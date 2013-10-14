@@ -6,8 +6,7 @@ import com.dwolla.java.sdk.requests.SendRequest;
 import com.dwolla.java.sdk.responses.SendResponse;
 import com.google.gson.Gson;
 import models.User;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import play.Logger;
 import play.data.Form;
 import play.data.validation.Constraints.Required;
 import play.mvc.Result;
@@ -25,8 +24,6 @@ import static play.data.Form.form;
  */
 @Security.Authenticated(AdminSecured.class)
 public class Admin extends BaseController {
-
-    public static Logger logger = LoggerFactory.getLogger(Admin.class);
 
     public static class ChargeForm {
         @Required
@@ -46,7 +43,7 @@ public class Admin extends BaseController {
      * @return admin menu view
      */
     public static Result menu() {
-        logger.info("render the user menu");
+        Logger.info("render the user menu");
         return ok(adminMenu.render(User.all()));
     }
 
@@ -59,7 +56,7 @@ public class Admin extends BaseController {
     public static Result editAmount(Integer id) {
         Form<ChargeForm> form = form(ChargeForm.class);
         User user = User.byId(id);
-        logger.info("render the charge page for username:{}" + user.username);
+        Logger.info("render the charge page for username:" + user.username);
         return ok(charge.render(user.username, user.id, form));
     }
 
@@ -75,7 +72,7 @@ public class Admin extends BaseController {
         User user = User.byId(id);
 
         if (form.hasErrors()) {
-            logger.info("chargeForm has errors:{}", form.errors());
+            Logger.info("chargeForm has errors:" + form.errors());
             return badRequest(charge.render(user.username, user.id, form));
         } else {
             DwollaServiceSync service = new RestAdapter.Builder().setServer(
@@ -89,14 +86,14 @@ public class Admin extends BaseController {
                 response = service.send(new DwollaTypedBytes(new Gson(),
                         new SendRequest(user.token, pin, Application.DWOLLA_DESTINATION_ID, amount)));
             } catch (RuntimeException re) {
-                logger.error("send request failed {}", re.getMessage());
+                Logger.error("send request failed "+ re.getMessage());
                 flash(ERROR, re.getMessage());
             }
 
 
             String msg = response.Message;
 
-            logger.info("send request username:{} amount:{} message:{}", user.username, amount, msg);
+            Logger.info("send request username:" + user.username + " amount:" + amount +  " message:" + msg);
             if (response.Success) {
                 flash(SUCCESS, msg);
             } else {
@@ -114,7 +111,7 @@ public class Admin extends BaseController {
      */
     public static Result deleteUser(Integer id) {
         User.delete(id);
-        logger.info("user id:{} deleted", id);
+        Logger.info("user deleted id:" + id);
         flash(SUCCESS, "user deleted");
         return goAdminMenu();
     }
@@ -135,11 +132,11 @@ public class Admin extends BaseController {
         Form<Info> form = form(Info.class).fill(info);
 
         if (form.hasErrors()) {
-            logger.info("infoForm has errors:{}", form.errors());
+            Logger.info("infoForm has errors:" + form.errors());
             return badRequest(adminEditInfo.render(id, form));
         }
 
-        logger.info("render the admin edit info page");
+        Logger.info("render the admin edit info page");
         return ok(adminEditInfo.render(id, form));
     }
 
@@ -153,7 +150,7 @@ public class Admin extends BaseController {
         Form<Info> form = form(Info.class).bindFromRequest();
 
         if (form.hasErrors()) {
-            logger.info("infoForm has errors:{}", form.errors());
+            Logger.info("infoForm has errors:" +  form.errors());
             return badRequest(adminEditInfo.render(id, form));
         }
 
@@ -162,7 +159,7 @@ public class Admin extends BaseController {
         u.isAdmin = form.get().isAdmin;
         u.update();
 
-        logger.info("username:{} updated", u.username);
+        Logger.info("username:" + u.username + "updated");
 
         return goAdminMenu();
     }
@@ -173,7 +170,7 @@ public class Admin extends BaseController {
      * @return admin menu
      */
     protected static Result goAdminMenu() {
-        logger.info("redirecting to admin menu");
+        Logger.info("redirecting to admin menu");
         return redirect(routes.Admin.menu());
     }
 

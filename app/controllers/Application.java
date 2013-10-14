@@ -1,8 +1,7 @@
 package controllers;
 
 import models.User;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import play.Logger;
 import play.data.Form;
 import play.data.validation.Constraints.Required;
 import play.mvc.Result;
@@ -23,8 +22,6 @@ import static play.data.Form.form;
  */
 @Security.Authenticated(Secured.class)
 public class Application extends BaseController {
-
-    public static Logger logger = LoggerFactory.getLogger(Admin.class);
 
 
     public static class Info {
@@ -69,10 +66,10 @@ public class Application extends BaseController {
      */
     public static Result index() {
         if (currentUser() == null) {
-            logger.info("no authorized user, redirecting to the login");
+            Logger.info("no authorized user, redirecting to the login");
             return redirect(routes.Authentication.login());
         } else {
-            logger.info("redirecting to the user menu");
+            Logger.info("redirecting to the user menu");
             return goMenu();
         }
     }
@@ -84,7 +81,7 @@ public class Application extends BaseController {
      * @return page with the authorization link
      */
     public static Result authorize() {
-        logger.info("render the Dwolla authorization");
+        Logger.info("render the Dwolla authorization");
         return ok(authorize.render(encode(DWOLLA_APP_KEY), encode(DWOLLA_REDIRECT_URI)));
     }
 
@@ -98,7 +95,7 @@ public class Application extends BaseController {
      */
     public static Result oauthFlow(String code) {
         if (code == null) {
-            logger.info("unsuccessful authentication");
+            Logger.info("unsuccessful authentication");
             flash(ERROR, "unsuccessful authentication");
         } else {
             //Retrofit REST client, oauth step2
@@ -113,9 +110,9 @@ public class Application extends BaseController {
                 User u = currentUser();
                 u.token = token.access_token;
                 u.update();                    //persist the token
-                logger.info("successful authentication");
+                Logger.info("successful authentication");
             } else {
-                logger.info("unsuccessful authentication");
+                Logger.info("unsuccessful authentication");
                 flash(ERROR, token.error_description);
             }
         }
@@ -133,7 +130,7 @@ public class Application extends BaseController {
         info.username = user.username;
         Form<Info> form = form(Info.class).fill(info);
 
-        logger.info("render the edit info");
+        Logger.info("render the edit info");
         return ok(editInfo.render(form));
     }
 
@@ -145,7 +142,7 @@ public class Application extends BaseController {
 
     public static Result editPassword() {
         Form<PasswordForm> form = form(PasswordForm.class);
-        logger.info("render the edit password");
+        Logger.info("render the edit password");
         return ok(editPassword.render(form));
     }
 
@@ -158,7 +155,7 @@ public class Application extends BaseController {
         Form<Info> form = form(Info.class).bindFromRequest();
 
         if (form.hasErrors()) {
-            logger.info("infoForm has errors:{}", form.errors());
+            Logger.info("infoForm has errors:" + form.errors());
             return badRequest(editInfo.render(form));
         }
 
@@ -183,7 +180,7 @@ public class Application extends BaseController {
         u.update();
 
         flash(SUCCESS, "update successful");
-        logger.info("username:{} updated", u.username);
+        Logger.info("username:" + u.username + " updated");
         return goMenu();
     }
 
@@ -201,14 +198,14 @@ public class Application extends BaseController {
                 u.assignPassword(form.get().newPassword);
                 u.update();
                 flash(SUCCESS, "password updated");
-                logger.info("password updated for username:{}", u.username);
+                Logger.info("password updated for username:" + u.username);
                 return goMenu();
             } else {
                 form.reject("password mismatch");
             }
         }
 
-        logger.info("passwordForm has errors:{}", form.errors());
+        Logger.info("passwordForm has errors:"+ form.errors());
         return badRequest(editPassword.render(form));
     }
 
