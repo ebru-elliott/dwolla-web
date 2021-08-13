@@ -1,5 +1,6 @@
 Dwolla web payment application
 
+
 From the application directory, type
 ```
 heroku config to see all the Heroku deployment environment variables
